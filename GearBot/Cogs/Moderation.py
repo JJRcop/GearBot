@@ -1203,7 +1203,7 @@ class Moderation(BaseCog):
                 f"{Emoji.get_chat_emoji('NO')} {Translator.translate('archive_no_subcommand', ctx, prefix=ctx.prefix)}")
 
     @archive.command()
-    async def channel(self, ctx, channel: disnake.TextChannel = None, amount=100):
+    async def channel(self, ctx, channel: typing.Union[disnake.TextChannel, disnake.Thread] = None, amount=100):
         """archive_channel_help"""
         if amount > 5000:
             await ctx.send(f"{Emoji.get_chat_emoji('NO')} {Translator.translate('archive_too_much', ctx)}")

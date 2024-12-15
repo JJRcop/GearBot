@@ -208,7 +208,7 @@ async def on_command_error(bot, ctx: commands.Context, error):
     elif isinstance(error, PostParseError):
         bot.help_command.context = ctx
         await send(ctx, f"{Emoji.get_chat_emoji('NO')} {Translator.translate('bad_argument', ctx, type=error.type, error=Utils.replace_lookalikes(str(error.error)))}\n{Emoji.get_chat_emoji('WRENCH')} {Translator.translate('command_usage', ctx, usage=bot.help_command.get_command_signature(ctx.command))}")
-    elif isinstance(error, commands.BadArgument):
+    elif isinstance(error, (commands.BadArgument, commands.BadUnionArgument)):
         param = list(ctx.command.params.values())[min(len(ctx.args) + len(ctx.kwargs), len(ctx.command.params))]
         bot.help_command.context = ctx
         await send(ctx, f"{Emoji.get_chat_emoji('NO')} {Translator.translate('bad_argument', ctx, type=param._name, error=Utils.replace_lookalikes(str(error)))}\n{Emoji.get_chat_emoji('WRENCH')} {Translator.translate('command_usage', ctx, usage=bot.help_command.get_command_signature(ctx.command))}")
