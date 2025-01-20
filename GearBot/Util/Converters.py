@@ -1,6 +1,7 @@
 import disnake
 from disnake import NotFound, Forbidden, HTTPException, Interaction
-from disnake.ext.commands import UserConverter, BadArgument, Converter, NoPrivateMessage, UserNotFound
+from disnake.ext.commands import UserConverter, BadArgument, Converter, PartialMessageConverter, \
+    NoPrivateMessage, UserNotFound
 
 from Bot.TheRealGearBot import PostParseError
 from Util import Utils, Configuration, Translator, MessageUtils
@@ -13,6 +14,11 @@ class TranslatedBadArgument(BadArgument):
     def __init__(self, key, ctx, arg=None, **kwargs):
         super().__init__(
             Translator.translate(key, ctx, arg=Utils.trim_message(Utils.clean_name(str(arg)), 1000), **kwargs))
+
+class ChannelNotProvided(BadArgument):
+    def __init__(self, argument: str) -> None:
+        self.argument: str = argument
+        super().__init__(f'Couldn\'t find channel id in "{argument}". Try using Copy Message Link, or hold Shift when using Copy Message ID.')
 
 
 class BannedMember(Converter):
@@ -513,6 +519,13 @@ class Nickname(Converter):
         if len(argument) > 32:
             raise TranslatedBadArgument('nickname_too_long', ctx)
         return argument
+
+class NoContextPartialMessage(PartialMessageConverter):
+    async def convert(self, ctx: disnake.ext.commands.context.AnyContext, argument: str) -> disnake.PartialMessage:
+        if '-' in argument or '/' in argument:
+            return await super().convert(ctx, argument)
+        else:
+            raise ChannelNotProvided(str(argument))
 
 
 anti_spam_types = {

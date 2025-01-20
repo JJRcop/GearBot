@@ -20,7 +20,7 @@ from Util import Configuration, Utils, GearbotLogging, Pages, InfractionUtils, E
     Archive, MessageUtils, server_info, Actions, Permissioncheckers
 from Util.Actions import ActionFailed
 from Util.Converters import BannedMember, Reason, Duration, DiscordUser, PotentialID, RoleMode, \
-    RangedInt, Message, RangedIntBan, VerificationLevel, Nickname, ServerMember
+    RangedInt, Message, RangedIntBan, VerificationLevel, Nickname, ServerMember, NoContextPartialMessage
 from Util.Matchers import URL_MATCHER
 from Util.Permissioncheckers import bot_has_guild_permission
 from database import DBUtils
@@ -1224,7 +1224,7 @@ class Moderation(BaseCog):
             await ctx.send(f"{Emoji.get_chat_emoji('NO')} {Translator.translate('archive_no_edit_logs', ctx)}")
 
     @archive.command(aliases=['messages','range'])
-    async def message(self, ctx, first: disnake.PartialMessage, last: disnake.PartialMessage = None):
+    async def message(self, ctx, first: NoContextPartialMessage, last: NoContextPartialMessage = None):
         """archive_messages_help"""
         if not await Configuration.get_var(ctx.guild.id, "MESSAGE_LOGS", "ENABLED"):
             await MessageUtils.send_to(ctx, 'NO', 'archive_no_edit_logs')
@@ -1258,8 +1258,6 @@ class Moderation(BaseCog):
         messages = await query
         messages += DBUtils.get_messages_in_range(first.channel.id, first.id, last.id if last is not None else None)
         await Archive.ship_messages(ctx, messages, "message", plural='yes' if last is not None else 'no')
-        if first.channel.id == ctx.channel.id and '/' not in ctx.message.content and '-' not in ctx.message.content:
-            await MessageUtils.send_to(ctx, 'WARNING', 'archive_message_no_channel_id')
 
     @archive.command()
     async def user(self, ctx, user: DiscordUser, amount=100):
